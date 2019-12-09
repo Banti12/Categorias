@@ -1,0 +1,19 @@
+{
+  "name": "categorias",
+  "version": "1.0.0",
+  "description": "Api alexa (parte categorias)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Banti12/Categorias.git"
+  },
+  "author": "Brandon Banti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Banti12/Categorias/issues"
+  },
+  "homepage": "https://github.com/Banti12/Categorias#readme"
+}
