@@ -17,15 +17,15 @@ const httpsOptions =
 //Que hace en la raiz
 app.get('/',function(req,res)
 {
-        res.send('hello Wordl!');
+        res.send('hello Wordl!, soy banti ya entre:');
 });
 //aplicaciones para convertir a json y ssml
 app.use(bodyParser.json({limit: '100mb'}));
 app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
 //app escucha en otro puerto
 app.listen(8080);
-// crea otra direccion que el cliente solicita en este caso, / alexa
-app.post('/alexa' , (req, res,next) => {
+// crea otra direccion que el cliente solicita en este caso, /categorias
+app.post('/categorias' , (req, res,next) => {
         //console.log(req.body);
         var speech = new Speech();
         speech.say('Hola mundos La cagé por que lo dice  en español españa')
@@ -38,7 +38,6 @@ app.post('/alexa' , (req, res,next) => {
         res.json({
                 "version": "1.0",
                 "sessionAttributes":{
-
                 },
                 "response":{
                 "outputSpeech":{
