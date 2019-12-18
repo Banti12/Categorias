@@ -4,8 +4,8 @@
 var fs = require('fs');
 
 /* Este cliente nos permitira realizar nuestra conexión y hacer las consultas a la base de datos y como siguiente paso vamos a realizar la configuración de nuestra conexión */
-const {Connection} = require('pg')
-let con = new Connection({
+let {Pool} = require('pg');
+let con = new Pool({
   user: 'postgres',
   host: '127.0.0.1',
   database: 'categorias',
@@ -15,9 +15,9 @@ let con = new Connection({
 
 let informacion = '';
 let nombrejson = '';
-let annos = ['2018','2019','2020','2021'];
+let annos = ['2018','2019','2020','2021','2022'];
 let categoria = [216];
-let querys = [];
+let querys="";
 
 for (let j = 1; j < 217; j++){
     if(j < 10){
@@ -49,7 +49,7 @@ for (i in annos)
 				let p_nombre = (infoArray[k].p_nombre == null || infoArray[k].p_nombre == undefined ? "No existe" : infoArray[k].p_nombre );
 				let adesc = (infoArray[k].adesc == null || infoArray[k].adesc == undefined ? "No existe" : infoArray[k].adesc );
 				let unidadm = (infoArray[k].unidadm == null || infoArray[k].unidadm == undefined ? "No existe" : infoArray[k].unidadm );
-				let indi = (infoArray[k].indi== null || infoArray[k].indi == undefined ? 0 : infoArray[k].indi );
+				let indi = (infoArray[k].indi== null || infoArray[k].indi == undefined ? 0 : infoArray[k].indi.toFixed(2) );
 				let objetivo = (infoArray[k].objetivo == null || infoArray[k].objetivo == undefined ? 0 : infoArray[k].objetivo);
 				let estrategia = (infoArray[k].estrategia == null || infoArray[k].estrategia == undefined ? 0 : infoArray[k].estrategia );
 				let laccion = (infoArray[k].laccion == null || infoArray[k].laccion == undefined ? 0 : infoArray[k].laccion);
@@ -63,12 +63,12 @@ for (i in annos)
 				let mt9 = (infoArray[k].mt9 == null || infoArray[k].mt9 == undefined ? 0 : infoArray[k].mt9 );
 				let mt12 = (infoArray[k].mt12 == null || infoArray[k].mt12 == undefined ? 0 : infoArray[k].mt12 );
 				let acomulado = at3 + at6 + at9 + at12;
-				let avance = mt3 + mt6 + mt9 + mt12;
+				let avance = (mt3 + mt6 + mt9 + mt12).toFixed(2);
 				let porcentaje = (acomulado == 0 || avance == 0 ? "0%": ((avance * 100) / acomulado).toFixed(2) + "%");
-				let diferencia = acomulado - avance;
+				let diferencia = (acomulado - avance).toFixed(2);
 				/*console.log(meta + " " + siglas + " " + p_no + " " + p_nombre + " " + adesc + " " + unidadm + " " + indi + " " + objetivo + " " + estrategia + " " + laccion + " " + visible + " " + at3 + " " + at6 + " " + at9 + " " + at12 + " " + mt3 + " " + mt6 + " " + mt9 + " " + mt12 + " " + acomulado + " " + avance + " " + porcentaje + " " + diferencia );*/
-				querys += "INSER INTO datos (anno,meta_sid,siglas,p_no,p_nombre,adesc,unidad,indi,objetivo,estrategia,laccion,visible,at3,at6,at9,at12,mt3,mt6,mt9,mt12,acomulado,avance,porcentaje,diferencia) VALUES ( "+annos[i]+","+meta+","+siglas+","+p_no+","+p_nombre+","+adesc+","+unidadm+",'"+indi+"','"+objetivo+"','"+estrategia+"','"+laccion+"',"+visible+",'"+at3+"','"+at6+"','"+at9+"','"+at12+"','"+mt3+"','"+mt6+"','"+mt9+"','"+mt12+"','"+acomulado+"','"+avance+"','"+porcentaje+"','"+diferencia+"'); \n"
-				
+				querys += "INSERT INTO datos (anno,meta_sid,siglas,p_no,p_nombre,adesc,unidad,indi,objetivo,estrategia,laccion,visible,at3,at6,at9,at12,mt3,mt6,mt9,mt12,acomulado,avance,porcentaje,diferencia) VALUES ( '"+annos[i]+"','"+meta+"','"+siglas+"','"+p_no+"','"+p_nombre+"','"+adesc+"','"+unidadm+"',"+indi+","+objetivo+","+estrategia+","+laccion+",'"+visible+"',"+at3+","+at6+","+at9+","+at12+","+mt3+","+mt6+","+mt9+","+mt12+","+acomulado+","+avance+",'"+porcentaje+"',"+diferencia+"); \n";
+								
 			}
 		}
 	}
