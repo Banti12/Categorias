@@ -4,6 +4,7 @@ const path=require('path');
 const https=require('https');
 const bodyParser= require('body-parser');
 const Speech = require ('ssml-builder');
+
 //@param app es lo que va a ejecutar la app
 const app=express();
 const directoryToServe='client'
@@ -28,11 +29,11 @@ app.listen(8080);
 app.post('/categorias' , (req, res,next) => {
         //console.log(req.body);
         var speech = new Speech();
-        speech.say('Hola mundos La cagé por que lo dice  en español españa')
+        speech.say('Bienvenido a la información de categorías')
         .pause('1s')
-        .say('Hello word ')
+        .say('Aun no funciono bien jajajaja Oscar adenuar esta con migo ')
         .pause('1s')
-        .say('Quiero comer ')
+        .say('Me hace falta poco')
         .pause('1s')
         var outputSpeech = speech.ssml(true);
         res.json({
