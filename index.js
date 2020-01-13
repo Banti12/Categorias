@@ -7,9 +7,9 @@ const Speech = require ('ssml-builder');
 
 var isFisrtTime = true;
 let nombreIntent = "" ;
+let pasadoIntent = "" ;
 const nombre = 'Categorias';
 const mensaje = 'Bienvenido a categorías';
-const reprompt = '¿En qué puedo ayudarte?';
 const pause = '<break time="0.3s" />';
 const saber_mas = '¿Quieres saber más?';
 const Mensajeayuda = 'Hola mi nombre es Alexa, soy una herramienta que te podrá ayudar para la obtención de los datos de categorías.';
@@ -42,13 +42,17 @@ app.post('/categorias' , (req, res,next) => {
 	}else if (req.body.request.type === 'IntentRequest') { 
 		switch (req.body.request.intent.name) {
 			case 'AMAZON.HelpIntent':
+			pasadoIntent = req.body.request.intent.name;
 			res.json(ayuda());
 			break;
 			case 'Si':
-			nombreIntent = req.body.request.intent.name;
-			console.log(nombreIntent);
-			let resultado = si();
-			res.json(resultado);
+			res.json(si(pasadoIntent));
+			break;
+			case 'No':
+                        res.json(no(pasadoIntent));
+                        break;
+			case 'AMAZON.StopIntent' :
+			res.json(adios());
 			break;
 		}
 	}   	
@@ -60,31 +64,49 @@ function bienvenida() {
     if (!isFisrtTime) {
       mensaje = '';
     }
-    const tempOutput = mensaje + pause;
+    const tempOutput = mensaje + pause + ', ¿En que te puedo ayudar?' + pause;
     const speechOutput = tempOutput;
     const more = 'Te puedo dar información sobre categorías';
     return buildResponseWithRepromt(speechOutput, false, 'Bienvenido a Alexa ', more);
   }
 
 function ayuda() {
-    const tempOutput = Mensajeayuda + pause;
+    const tempOutput = Mensajeayuda + pause + '¿Te gustaría saber cómo preguntar para obtener la información?' + pause;
     const speechOutput = tempOutput;
     const reprompt = '¿Te gustaría saber cómo preguntar para obtener la información?';
     const cardText = 'Te encuentras en el menu de ayuda';
     return buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
   }
 
-async function si(){
+function adios() {
+    const tempOutput = 'Sigo a tus órdenes, nos vemos pronto. Adiós' + pause;
+    const speechOutput = tempOutput;
+    const cardText = 'Despedida';
+    return buildResponse(speechOutput, true, cardText);
+  }
+
+function si(pasado){
   var jsonObj;
-  const speechOutput = "";
-  const reprompt = "";
-  if(nombreIntent =='AMAZON.HelpIntent'){
-      speechOutput = "Existen 3 formas de preguntar" + pause + "La primera consiste en decir categorias " + pause ;
-      reprompt = '';
+  if(pasado =='AMAZON.HelpIntent'){
+      const tempOutput = 'Existen 3 formas de preguntar' + pause + 'La primera consiste en decir categorias' + pause + ', ¿En que te puedo ayudar?' + pause;
+      const speechOutput = tempOutput;
+      const reprompt = 'si quieres repetir';
       const cardText = 'Formas de preguntar';
       jsonObj = buildResponseWithRepromt(speechOutput, false, cardText , reprompt);
   }
-  return await jsonObj;
+  return jsonObj;
+}
+
+function no(pasado){
+  var jsonObj;
+  if(pasado =='AMAZON.HelpIntent'){
+      const tempOutput = '¿En que te puedo ayudar?' + pause ;
+      const speechOutput = tempOutput;
+      const reprompt = 'Principal';
+      const cardText = '¿En que te puedo ayudar?';
+      jsonObj = buildResponseWithRepromt(speechOutput, false, cardText , reprompt);
+  }
+  return jsonObj;
 }
 
 /* Funciones build response: ayudaran a formatear la salida a tipo alexa */
@@ -138,31 +160,6 @@ function buildResponseWithRepromt(speechText, shouldEndSession, cardText, reprom
     return jsonObj
   }
 
-function buildResponsebienvenida (speechText, shouldEndSession, cardText) {
-    const mensaje = "<speak>" + speechText + "</speak>"
-    var jsonObj = {
-        "version": "1.0",
-        "response": {
-	    "shoulEndSession": shouldEndSession,
-            "outputSpeech": {
-            "type": "SSML",
-            "ssml": mensaje
-            },
-            "card": {
-            "type": "Simple",
-            "title": "Bienvenida",
-            "content": cardText
-            },
-            "reprompt": {
-            "outputSpeech": {
-                "type": "SSML",
-                "ssml": cardText
-            }
-            }
-        }
-    }
-    return jsonObj
-}
 
 //finalmente creamos el servidor httpS que usa a app
 https.createServer(httpsOptions,app).listen(port,function(){

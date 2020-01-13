@@ -29,7 +29,7 @@ for (let j = 1; j < 217; j++){
     if(j>=100){
         categoria[j] = ''+j;
     }
-    /*console.log(categoria[j]);*/
+    console.log(categoria[j]);
 }
 
 for (i in annos)
@@ -43,8 +43,11 @@ for (i in annos)
 			var infoArray = JSON.parse(archivo);
 			var numObjetos = Object.keys(infoArray).length-1;
 			for (var k=0; k<numObjetos; k++){
-				let meta = (infoArray[k].meta_sid == null || infoArray[k].meta_sid == undefined ? "No existe" : infoArray[k].meta_sid );
+				let meta = (infoArray[k].meta_sid == null || infoArray[k].meta_sid == undefined ? "No existe_No existe_No existe" : infoArray[k].meta_sid );
 				let siglas = (infoArray[k].u_siglas == null || infoArray[k].u_siglas == undefined ? "No existe" : infoArray[k].u_siglas );
+				var arregloMeta = meta.split("_");
+				let programa = arregloMeta[1];
+				let numero = arregloMeta[0];
 				let p_no = (infoArray[k].p_no == null || infoArray[k].p_no == undefined ? "No existe" : infoArray[k].p_no );
 				let p_nombre = (infoArray[k].p_nombre == null || infoArray[k].p_nombre == undefined ? "No existe" : infoArray[k].p_nombre );
 				let adesc = (infoArray[k].adesc == null || infoArray[k].adesc == undefined ? "No existe" : infoArray[k].adesc );
@@ -67,7 +70,7 @@ for (i in annos)
 				let porcentaje = (acomulado == 0 || avance == 0 ? "0%": ((avance * 100) / acomulado).toFixed(2) + "%");
 				let diferencia = (acomulado - avance).toFixed(2);
 				/*console.log(meta + " " + siglas + " " + p_no + " " + p_nombre + " " + adesc + " " + unidadm + " " + indi + " " + objetivo + " " + estrategia + " " + laccion + " " + visible + " " + at3 + " " + at6 + " " + at9 + " " + at12 + " " + mt3 + " " + mt6 + " " + mt9 + " " + mt12 + " " + acomulado + " " + avance + " " + porcentaje + " " + diferencia );*/
-				querys += "INSERT INTO datos (anno,meta_sid,siglas,p_no,p_nombre,adesc,unidad,indi,objetivo,estrategia,laccion,visible,at3,at6,at9,at12,mt3,mt6,mt9,mt12,acomulado,avance,porcentaje,diferencia) VALUES ( '"+annos[i]+"','"+meta+"','"+siglas+"','"+p_no+"','"+p_nombre+"','"+adesc+"','"+unidadm+"',"+indi+","+objetivo+","+estrategia+","+laccion+",'"+visible+"',"+at3+","+at6+","+at9+","+at12+","+mt3+","+mt6+","+mt9+","+mt12+","+acomulado+","+avance+",'"+porcentaje+"',"+diferencia+"); \n";
+				querys += "INSERT INTO datos (anno,meta_sid,siglas,programa,numero,p_no,p_nombre,adesc,unidad,indi,objetivo,estrategia,laccion,visible,at3,at6,at9,at12,mt3,mt6,mt9,mt12,acomulado,avance,porcentaje,diferencia) VALUES ( '"+annos[i]+"','"+meta+"','"+siglas+"','"+programa+"','"+numero+"','"+p_no+"','"+p_nombre+"','"+adesc+"','"+unidadm+"',"+indi+","+objetivo+","+estrategia+","+laccion+",'"+visible+"',"+at3+","+at6+","+at9+","+at12+","+mt3+","+mt6+","+mt9+","+mt12+","+acomulado+","+avance+",'"+porcentaje+"',"+diferencia+"); \n";
 								
 			}
 		}
