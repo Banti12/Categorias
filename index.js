@@ -4,6 +4,7 @@ const path=require('path');
 const https=require('https');
 const bodyParser= require('body-parser');
 const Speech = require ('ssml-builder');
+let conectar=require('./conexion');
 
 var isFisrtTime = true;
 let nombreIntent = "" ;
@@ -54,11 +55,25 @@ app.post('/categorias' , (req, res,next) => {
 			case 'AMAZON.StopIntent' :
 			res.json(adios());
 			break;
+			case 'informacion' :
+			console.log("entre");
+			let areas = req.body.request.intent.slots.area.value;
+			let programas = req.body.request.intent.slots.programa.value;
+			let categorias = req.body.request.intent.slots.categoria.value;
+			let trimestres = req.body.request.intent.slots.trimestre.value;
+			let annos = req.body.request.intent.slots.anno.value;
+			console.log(areas,programas,categorias,trimestres,annos);
+			res.json(info());
+			break;
 		}
 	}   	
 });
 
 /* Funciones que se utilizaran para los Intent request */
+
+function info(){
+
+}
 
 function bienvenida() {
     if (!isFisrtTime) {
@@ -160,8 +175,24 @@ function buildResponseWithRepromt(speechText, shouldEndSession, cardText, reprom
     return jsonObj
   }
 
+/*Funciones especiicas */
+function formatearNumero (num)
+  {
+    var respuesta;
+    if(num < 10){
+       respuesta = '00'+ num;
+    }
+    if(num>9 && j < 100){
+        respuesta = '0'+ num;
+    }
+    if(num>=100){
+        respuesta = ''+ num;
+    }
+    return respuesta;
+  }
 
-//finalmente creamos el servidor httpS que usa a app
+
+/*finalmente creamos el servidor httpS que usa a app*/
 https.createServer(httpsOptions,app).listen(port,function(){
         console.log(`Serving the ${directoryToServe} directory at https:vmonet:${port}`);
 })
