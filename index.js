@@ -15,6 +15,15 @@ const pause = '<break time="0.3s" />';
 const saber_mas = '¿Quieres saber más?';
 const Mensajeayuda = 'Hola mi nombre es Alexa, soy una herramienta que te podrá ayudar para la obtención de los datos de categorías.';
 
+/*Efectos de alexa*/
+const susurroA = '<amazon:effect name = "whispered">';
+const susurroC = '</amazon:effect>';
+const desepcionada = '<amazon:emotion name="disappointed" intensity="high">';
+const emocionado = '<amazon:emotion name="excited" intensity="medium">';
+const cerraremotion = '</amazon:emotion>';
+const hablaEnrique = '<voice name="Enrique"><lang xml:lang="en-ES">';
+const cerrarEnrique = '</lang></voice>';
+
 //@param app es lo que va a ejecutar la app
 const app=express();
 const directoryToServe='client'
@@ -26,7 +35,7 @@ const httpsOptions =
 	key:fs.readFileSync("/etc/letsencrypt/live/cndiserv.cultura.gob.mx/privkey.pem")
 }
 //Que hace en la raiz
-app.get('/',function(req,res)
+app.get('/', function(req,res)
 {
         res.send('hello Wordl!, soy banti ya entre:');
 });
@@ -36,7 +45,7 @@ app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
 //app escucha en otro puerto
 app.listen(8080);
 // crea otra direccion que el cliente solicita en este caso, /categorias
-app.post('/categorias' , (req, res,next) => {
+app.post('/categorias' ,async function (req, res,next) {
 	if (req.body.request.type === 'LaunchRequest') {
     		res.json(bienvenida());
 		isFisrtTime = false;
@@ -55,24 +64,44 @@ app.post('/categorias' , (req, res,next) => {
 			case 'AMAZON.StopIntent' :
 			res.json(adios());
 			break;
-			case 'informacion' :
-			console.log("entre");
-			let areas = req.body.request.intent.slots.area.value;
-			let programas = req.body.request.intent.slots.programa.value;
-			let categorias = req.body.request.intent.slots.categoria.value;
-			let trimestres = req.body.request.intent.slots.trimestre.value;
-			let annos = req.body.request.intent.slots.anno.value;
-			console.log(areas,programas,categorias,trimestres,annos);
-			res.json(info());
+			case 'informacion':
+			var informa = [req.body.request.intent.slots.area.value, req.body.request.intent.slots.programa.value, req.body.request.intent.slots.categoria.value, quetrimestre(req.body.request.intent.slots.trimestre.value), req.body.request.intent.slots.anno.value];
+			res.json(await info(informa));
+			console.log("Sali");
 			break;
 		}
 	}   	
 });
 
+/*Funcion para usar en los query's*/
+
+async function queryprincipal (informa){
+	let select = "select mt12,mt" + informa[3] + ",at" + informa[3] + ",p_nombre,unidad from datos where anno = '"+informa[4]+"' and siglas ilike '"+informa[0]+"' and programa ilike '"+informa[1]+"' and numero = '"+informa[2]+"' ; ";
+        var respuestatrimestre = quetrimestreN(informa[3]);
+        let respuesta = await conectar.qryCompleto(select,informa[3]);
+        var promedio = prom(respuesta[0].mt12,respuesta[0].atN);
+        let string = "" ;
+	if(respuesta != null){
+                string = respuesta[0].p_nombre + ' realizo ' + respuesta[0].atN + ' de ' + respuesta[0].mtN + ' ' + respuesta[0].laccion + ' que se programaron en el ' + respuestatrimestre + ', con lo que alcanzo un ' +  promedio + ' de la meta programada en el año ' + informa[4];
+        }else{
+                string = 'Lo siento, no pude encontrar la informacion solicitado, Revisa bien los datos solicitados';
+        }
+	return string;
+}
+
 /* Funciones que se utilizaran para los Intent request */
 
-function info(){
-
+async function info(informa){
+	let mensaje = await queryprincipal(informa);
+	console.log(mensaje);
+	const tempOutput = mensaje + pause ;
+	const speechOutput = tempOutput;
+	console.log("salli");
+	console.log(speechOutput);
+	const reprompt = 'En que otra cosa te puedo ayudar';
+	const cardText = 'Informando';
+	console.log("antes del return");
+	return await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
 }
 
 function bienvenida() {
@@ -191,6 +220,47 @@ function formatearNumero (num)
     return respuesta;
   }
 
+function quetrimestre (num)
+{
+   var respuesta;
+    if(num == 1){
+       respuesta = 3;
+    }
+    if(num == 2){
+        respuesta = 6;
+    }
+    if(num == 3){
+        respuesta = 9;
+    }
+    if(num == 4){
+        respuesta = 12;
+    }
+    return respuesta;
+}
+
+function quetrimestreN (num)
+{
+   var respuesta;
+    if(num == 3){
+       respuesta = 'primer trimestre';
+    }
+    if(num == 6){
+        respuesta = 'segundo trimestre';
+    }
+    if(num == 9){
+        respuesta = 'tercer trimestre';
+    }
+    if(num == 12){
+        respuesta = 'cuarto trimestre';
+    }
+    return respuesta;
+} 
+
+function prom(num,num1){
+    var n = ((num1 * 100) / num).toFixed(2);
+    var respu = n + '%';
+    return respu;
+}
 
 /*finalmente creamos el servidor httpS que usa a app*/
 https.createServer(httpsOptions,app).listen(port,function(){

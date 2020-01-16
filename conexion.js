@@ -1,40 +1,50 @@
 let {Pool} = require('pg');
 
-let us = 'postgres';
-let hos = '127.0.0.1';
-let bd = 'categorias';
-let pas = 'postgres';
-let por = 5432;
+let con = new Pool({
+      user: 'postgres',
+      host: '127.0.0.1',
+      database: 'categorias',
+      password: 'postgres',
+      port: 5432,
+})
 
-async function qryCompleto(string,mt,at){
-    let pool = new Pool({
-      user: us,
-      host: hos,
-      database: bd,
-      password: pas,
-      port: por,
-    })
-    let respuesta=[];
-    await pool.query(string, (err, res) => {
+
+async function qryCompleto(string,num){
+  let resultado = [] ;
+  await con.query(string, (err, res) => {
 	if (err) {
-           console.log(err.stack)
-        }else if(res != undefined && res != null && res.rowCount>0){
-            for(i=0;i<res.rowCount;i++){
-              var json={}
-              json.mtN=res.rows[i].mt;
-              json.atN=res.rows[i].at;
-              json.porcentaje=res.rows[i].porcentaje;
-              json.diferencia=res.rows[i].diferencia;
-              json.p_nombre=res.rows[i].p_nombre;
-              json.laccion=res.rows[i].laccion;
-              respuesta.push(json);
-            }  
-        }else{
-          respuesta=null;
+      console.log(err.stack)
+  }else if(res != undefined || res != null || res.rowCount>0){
+    for(i=0;i<res.rowCount;i++){
+      var json={}
+      if(num == 3){
+	json.mtN=res.rows[i].mt3;
+	json.atN=res.rows[i].at3;
+	}
+	if(num == 6){
+        json.mtN=res.rows[i].mt6;
+        json.atN=res.rows[i].at6;
         }
-        })
-    await pool.end();
-    return respuesta;
-  }
+	if(num == 9){
+        json.mtN=res.rows[i].mt9;
+        json.atN=res.rows[i].at9;
+        }
+	if(num == 12){
+        json.mtN=res.rows[i].mt3;
+        json.atN=res.rows[i].at3;
+        }
+	json.mt12=res.rows[i].mt12;	
+	json.p_nombre=res.rows[i].p_nombre;
+	json.laccion=res.rows[i].unidad;
+	resultado.push(json);
+      }  
+    }else{
+      resultado=null;
+    }
+  })
+  await con.end();
+  return resultado;
+}
+  
+exports.qryCompleto=qryCompleto;
 
-  exports.qryCompleto=qryCompleto;
