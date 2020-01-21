@@ -32,3 +32,19 @@ avance NUMERIC,
 porcentaje varchar(50),
 diferencia NUMERIC
 );
+
+CREATE TABLE datos1(
+id SERIAL PRIMARY KEY,
+num_categoria integer,
+categoria varchar(15),
+area varchar(50),
+at3 integer,
+at6 integer,
+at9 integer,
+at12 integer,
+mt3 integer,
+mt6 integer,
+mt9 integer,
+mt12 integer,
+anno varchar(5)
+);

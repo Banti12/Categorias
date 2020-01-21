@@ -1,16 +1,16 @@
 let {Pool} = require('pg');
 
-let con = new Pool({
+
+async function qryCompleto(string,num){
+  let con = new Pool({
       user: 'postgres',
       host: '127.0.0.1',
       database: 'categorias',
       password: 'postgres',
       port: 5432,
-})
-
-
-async function qryCompleto(string,num){
-  let resultado = [] ;
+  })
+  
+let resultado = [] ;
   await con.query(string, (err, res) => {
 	if (err) {
       console.log(err.stack)
@@ -45,6 +45,139 @@ async function qryCompleto(string,num){
   await con.end();
   return resultado;
 }
+
+async function qryCompletopalmas1(string){
+  let con = new Pool({
+      user: 'postgres',
+      host: '127.0.0.1',
+      database: 'categorias',
+      password: 'postgres',
+      port: 5432,
+  })
+
+let resultado = [] ;
+  await con.query(string, (err, res) => {
+        if (err) {
+      console.log(err.stack)
+  }else if(res != undefined || res != null || res.rowCount>0){
+      if(res.rowCount>=3){
+            for(i=0;i<3;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.p_nombre = res.rows[i].p_nombre;
+              json.unidad = res.rows[i].unidad;
+              json.programa = res.rows[i].programa;
+              json.categoria = res.rows[i].numero;
+              resultado.push(json);
+            }  
+          }else{
+            for(i=0;i<res.rowCount;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.p_nombre = res.rows[i].p_nombre;
+              json.unidad = res.rows[i].unidad;
+              json.programa = res.rows[i].programa;
+              json.categoria = res.rows[i].numero;
+              resultado.push(json);
+            }
+	} 
+  }else{
+      resultado=null;
+    }
+  })
+  await con.end();
+  return resultado;
+}
+
+async function qryCompletopalmas2(string){
+  let con = new Pool({
+      user: 'postgres',
+      host: '127.0.0.1',
+      database: 'categorias',
+      password: 'postgres',
+      port: 5432,
+  })
+
+let resultado = [] ;
+  await con.query(string, (err, res) => {
+        if (err) {
+      console.log(err.stack)
+  }else if(res != undefined || res != null || res.rowCount>0){
+      if(res.rowCount>=3){
+            for(i=0;i<3;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.p_nombre = res.rows[i].p_nombre;
+              json.unidad = res.rows[i].unidad;
+              json.siglas = res.rows[i].siglas;
+              json.categoria = res.rows[i].numero;
+              resultado.push(json);
+            }
+          }else{
+            for(i=0;i<res.rowCount;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.p_nombre = res.rows[i].p_nombre;
+              json.unidad = res.rows[i].unidad;
+              json.siglas = res.rows[i].siglas;
+              json.categoria = res.rows[i].numero;
+              resultado.push(json);
+            }
+        }
+  }else{
+      resultado=null;
+    }
+  })
+  await con.end();
+  return resultado;
+}
+
+async function qryCompletopalmas3(string){
+  let con = new Pool({
+      user: 'postgres',
+      host: '127.0.0.1',
+      database: 'categorias',
+      password: 'postgres',
+      port: 5432,
+  })
+
+let resultado = [] ;
+  await con.query(string, (err, res) => {
+        if (err) {
+ 	console.log(err.stack)     
+  }else if(res != undefined || res != null || res.rowCount>0){
+      if(res.rowCount>=3){
+            for(i=0;i<3;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.p_nombre = res.rows[i].p_nombre;
+              json.unidad = res.rows[i].unidad;
+	      json.siglas = res.rows[i].siglas;
+              json.programa = res.rows[i].programa;
+              resultado.push(json);
+            }
+          }else{
+            for(i=0;i<res.rowCount;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.p_nombre = res.rows[i].p_nombre;
+              json.unidad = res.rows[i].unidad;
+	      json.siglas = res.rows[i].siglas;
+              json.programa = res.rows[i].programa;
+              resultado.push(json);
+            }
+        }
+  }else{
+      resultado=null;
+    }
+  })
+  await con.end();
+  return resultado;
+}
+
+
   
 exports.qryCompleto=qryCompleto;
-
+exports.qryCompletopalmas1 = qryCompletopalmas1;
+exports.qryCompletopalmas2 = qryCompletopalmas2;
+exports.qryCompletopalmas3 = qryCompletopalmas3;

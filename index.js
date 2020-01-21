@@ -5,10 +5,11 @@ const https=require('https');
 const bodyParser= require('body-parser');
 const Speech = require ('ssml-builder');
 let conectar=require('./conexion');
-
+let fecha = new Date();
 var isFisrtTime = true;
 let nombreIntent = "" ;
-let pasadoIntent = "" ;
+let annopasado = "";
+let informapasado = "";
 const nombre = 'Categorias';
 const mensaje = 'Bienvenido a categorías';
 const pause = '<break time="0.3s" />';
@@ -56,7 +57,7 @@ app.post('/categorias' ,async function (req, res,next) {
 			res.json(ayuda());
 			break;
 			case 'Si':
-			res.json(si(pasadoIntent));
+			res.json(await si(pasadoIntent,informapasado));
 			break;
 			case 'No':
                         res.json(no(pasadoIntent));
@@ -67,7 +68,16 @@ app.post('/categorias' ,async function (req, res,next) {
 			case 'informacion':
 			var informa = [req.body.request.intent.slots.area.value, req.body.request.intent.slots.programa.value, req.body.request.intent.slots.categoria.value, quetrimestre(req.body.request.intent.slots.trimestre.value), req.body.request.intent.slots.anno.value];
 			res.json(await info(informa));
-			console.log("Sali");
+			pasadoIntent = req.body.request.intent.name;
+			informapasado = [req.body.request.intent.slots.area.value, req.body.request.intent.slots.programa.value, req.body.request.intent.slots.categoria.value, quetrimestre(req.body.request.intent.slots.trimestre.value), req.body.request.intent.slots.anno.value - 1];
+			break;
+			case 'palmas' :
+			var informa = [req.body.request.intent.slots.anno_p.value, req.body.request.intent.slots.area_p.value, quetrimestre(req.body.request.intent.slots.programa_p.value), req.body.request.intent.slots.categorias_p.value];
+			res.json(await pal(informa));
+			break;
+			case 'avance' :
+			var informa = [req.body.request.intent.slots.categoria_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), req.body.request.intent.slots.anno_a.value];
+			res.json(await avan(informa));
 			break;
 		}
 	}   	
@@ -76,31 +86,120 @@ app.post('/categorias' ,async function (req, res,next) {
 /*Funcion para usar en los query's*/
 
 async function queryprincipal (informa){
-	let select = "select mt12,mt" + informa[3] + ",at" + informa[3] + ",p_nombre,unidad from datos where anno = '"+informa[4]+"' and siglas ilike '"+informa[0]+"' and programa ilike '"+informa[1]+"' and numero = '"+informa[2]+"' ; ";
-        var respuestatrimestre = quetrimestreN(informa[3]);
-        let respuesta = await conectar.qryCompleto(select,informa[3]);
-        var promedio = prom(respuesta[0].mt12,respuesta[0].atN);
-        let string = "" ;
-	if(respuesta != null){
-                string = respuesta[0].p_nombre + ' realizo ' + respuesta[0].atN + ' de ' + respuesta[0].mtN + ' ' + respuesta[0].laccion + ' que se programaron en el ' + respuestatrimestre + ', con lo que alcanzo un ' +  promedio + ' de la meta programada en el año ' + informa[4];
-        }else{
-                string = 'Lo siento, no pude encontrar la informacion solicitado, Revisa bien los datos solicitados';
-        }
-	return string;
+  let string =  " ";
+  if(informa[4] > 2017){
+    let select = "select mt12,mt" + informa[3] + ",at" + informa[3] + ",p_nombre,unidad from datos where anno = '"+informa[4]+"' and siglas ilike '"+informa[0]+"' and programa ilike '"+informa[1]+"' and numero = '"+informa[2]+"' ; ";
+    var respuestatrimestre = quetrimestreN(informa[3]);
+    let respuesta = await conectar.qryCompleto(select,informa[3]);
+    var promedio = prom(respuesta[0].mt12,respuesta[0].atN); 
+    string = 'Lo siento, no pude encontrar la información solicitado, Revisa bien los datos solicitados' + hablaEnrique +  ' Si persiste el problema por favor de ponerse en contacto con Alfonso ' + cerrarEnrique + '¿En qué otra cosa te puedo ayudar?' ;
+    if(respuesta != null){
+            string = respuesta[0].p_nombre + ' realizo ' + respuesta[0].atN + ' de ' + respuesta[0].mtN + ' ' + respuesta[0].laccion + ' que se programaron en el ' + respuestatrimestre + ', con lo que alcanzo un ' +  promedio + ' de la meta programada en el año ' + informa[4];
+    }else {
+            string = 'Lo siento, no pude encontrar la informacion solicitado, Revisa bien los datos solicitados';
+    }
+  }else{
+    string = 'Lo siento, solo tengo información del 2018 en adelante. ¿En qué otra cosa te puedo ayudar?'
+  }
+  return string;
 }
+
+async function querypalmas (informa){
+  let string =  " ";
+  let select =  " ";
+  let tipo = " ";
+  string = 'Lo siento, no pude encontrar la información solicitado. Revisa bien los datos solicitados' + hablaEnrique +  ' Si persiste el problema por favor de ponerse en contacto con Alfonso ' + cerrarEnrique + '¿En qué otra cosa te puedo ayudar?' ;
+  var sqlanno;
+  var sqlarea;
+  var sqlprog;
+  var sqlcat;
+  let respuesta;
+  var indicador = 1;
+  if(informa[0] == undefined  || informa[0] == null ){
+    sqlanno = fecha.getFullYear();
+  } else{
+    sqlanno = informa[0];
+  }
+
+  if(informa[1] != undefined  || informa[1] != null ){
+    select = "select DISTINCT(mt12),p_nombre,unidad,programa,numero FROM datos where anno = '"+sqlanno+"' and siglas ilike '"+informa[1]+"' ORDER BY mt12 DESC;";
+    console.log("Base de datos"+ select);
+    respuesta = await conectar.qryCompletopalmas1(select);
+    tipo = 'El área que se lleva el';
+    indicador = 1;
+  }
+
+  if(informa[2] != undefined  || informa[2] != null ){
+    select = "select DISTINCT(mt12),p_nombre,unidad,siglas,numero FROM datos where anno = '"+sqlanno+"' and programa ilike '"+informa[2]+"' ORDER BY mt12 DESC;";
+    console.log(select)
+    respuesta = await conectar.qryCompletopalmas2(select);
+    tipo = 'El programa que se lleva el';
+    indicador = 2;
+  }
+
+  if(informa[3] != undefined  || informa[3] != null ){
+    select = "select DISTINCT(mt12),p_nombre,unidad,siglas,programa FROM datos where anno = '"+sqlanno+"' and numero ilike '"+informa[3]+"' ORDER BY mt12 DESC;";
+    console.log(select)
+    respuesta = await conectar.qryCompletopalmas3(select);
+    tipo = 'La categoría que se lleva el';
+    indicador = 3;
+  }
+
+  if(respuesta != null){
+            switch (respuesta.length){
+              case 3:
+		if( indicador == 1){
+			string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el programa ' + respuesta[0].programa + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el programa ' + respuesta[1].programa + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' . ' + tipo + ' tercer lugar es ' +  respuesta[2].p_nombre + ' con el programa ' + respuesta[2].programa + ' y categoría  ' + respuesta[2].categoria   + ' que realizo ' + respuesta[2].mt12 + ' ' + respuesta[2].unidad + ' en el año ' + sqlanno;
+		}else if (indicador == 2){
+			string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' . ' + tipo + ' tercer lugar es ' +  respuesta[2].p_nombre + ' con el área ' + respuesta[2].siglas + ' y categoría  ' + respuesta[2].categoria   + ' que realizo ' + respuesta[2].mt12 + ' ' + respuesta[2].unidad + ' en el año ' + sqlanno;
+		}else{
+                string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y programa  ' + respuesta[0].programa   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y programa ' + respuesta[1].programa   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' . ' + tipo + ' tercer lugar es ' +  respuesta[2].p_nombre + ' con el área ' + respuesta[2].siglas + ' y programas  ' + respuesta[2].programa   + ' que realizo ' + respuesta[2].mt12 + ' ' + respuesta[2].unidad + ' en el año ' + sqlanno;
+              	}
+		break;
+              case 2:
+                if( indicador == 1){
+        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el programa ' + respuesta[0].programa + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el programa ' + respuesta[1].programa + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad + ' en el año ' + sqlanno;
+}else if (indicador == 2){
+        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' en el año ' + sqlanno;
+}else{
+        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y programa  ' + respuesta[0].programa   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y programa ' + respuesta[1].programa   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad + ' en el año ' + sqlanno;
+		}
+              break;
+              case 1:
+                if( indicador == 1){
+        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el programa ' + respuesta[0].programa + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause + ' en el año ' + sqlanno;
+}else if (indicador == 2){
+        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + ' en el año ' + sqlanno;
+}else{
+        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y programa  ' + respuesta[0].programa   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + ' en el año ' + sqlanno;
+		}
+              break;
+            }
+    } else {
+            string = 'Lo siento, no pude encontrar la informacion solicitado, Revisa bien los datos solicitados';
+    }  
+  return string;
+}
+
 
 /* Funciones que se utilizaran para los Intent request */
 
+async function pal(informa){
+        let mensaje = await querypalmas(informa);
+	const tempOutput = mensaje + pause + susurroA + '.' + pause + '¿En qué otra cosa te puedo ayudar?' + susurroC  ;
+	const speechOutput = tempOutput;
+        const reprompt = 'En que otra cosa te puedo ayudar';
+        const cardText = 'Informando';
+        return await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
+}
+
+
 async function info(informa){
 	let mensaje = await queryprincipal(informa);
-	console.log(mensaje);
-	const tempOutput = mensaje + pause ;
+	const tempOutput = mensaje + pause + susurroA + ' Te gustaría saber, ¿Cómo es que iban en el año pasado?' + susurroC  ;
 	const speechOutput = tempOutput;
-	console.log("salli");
-	console.log(speechOutput);
 	const reprompt = 'En que otra cosa te puedo ayudar';
 	const cardText = 'Informando';
-	console.log("antes del return");
 	return await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
 }
 
@@ -129,7 +228,7 @@ function adios() {
     return buildResponse(speechOutput, true, cardText);
   }
 
-function si(pasado){
+async function si(pasado,informa){
   var jsonObj;
   if(pasado =='AMAZON.HelpIntent'){
       const tempOutput = 'Existen 3 formas de preguntar' + pause + 'La primera consiste en decir categorias' + pause + ', ¿En que te puedo ayudar?' + pause;
@@ -137,6 +236,14 @@ function si(pasado){
       const reprompt = 'si quieres repetir';
       const cardText = 'Formas de preguntar';
       jsonObj = buildResponseWithRepromt(speechOutput, false, cardText , reprompt);
+  }
+  if(pasado == 'informacion'){
+      let mensaje = await queryprincipal(informa);
+      const tempOutput = mensaje + pause ;
+      const speechOutput = tempOutput;
+      const reprompt = '¿En qué otra cosa te puedo ayudar?';
+      const cardText = 'Comparacion';
+      jsonObj = await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);			
   }
   return jsonObj;
 }
@@ -150,6 +257,14 @@ function no(pasado){
       const cardText = '¿En que te puedo ayudar?';
       jsonObj = buildResponseWithRepromt(speechOutput, false, cardText , reprompt);
   }
+  if(pasado == 'informacion'){
+      const tempOutput = '¿En qué otra cosa te puedo ayudar?' + pause;
+      const speechOutput = tempOutput;
+      const reprompt = '¿En qué otra cosa te puedo ayudar?';
+      const cardText = 'Comparacion';
+      jsonObj = buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
+  }
+
   return jsonObj;
 }
 
