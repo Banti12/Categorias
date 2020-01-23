@@ -4,7 +4,7 @@ CREATE DATABASE categorias;
 \c categorias;
 
 CREATE TABLE datos(
-id SERIAL PRIMARY KEY,
+id SERIAL,
 anno varchar(5),
 meta_sid varchar(50),
 siglas varchar(50),
@@ -34,7 +34,7 @@ diferencia NUMERIC
 );
 
 CREATE TABLE datos1(
-id SERIAL PRIMARY KEY,
+id SERIAL,
 num_categoria integer,
 categoria varchar(15),
 area varchar(50),
@@ -47,4 +47,9 @@ mt6 integer,
 mt9 integer,
 mt12 integer,
 anno varchar(5)
+);
+
+CREATE TABLE catalogo_categorias (
+id SERIAL,
+categoria TEXT
 );

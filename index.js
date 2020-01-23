@@ -76,7 +76,9 @@ app.post('/categorias' ,async function (req, res,next) {
 			res.json(await pal(informa));
 			break;
 			case 'avance' :
-			var informa = [req.body.request.intent.slots.categoria_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), req.body.request.intent.slots.anno_a.value];
+			var informa = [req.body.request.intent.slots.categorias_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), req.body.request.intent.slots.anno_a.value];
+			pasadoIntent = req.body.request.intent.name;
+			informapasado = [req.body.request.intent.slots.categorias_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), req.body.request.intent.slots.anno_a.value - 1];
 			res.json(await avan(informa));
 			break;
 		}
@@ -181,8 +183,60 @@ async function querypalmas (informa){
   return string;
 }
 
+async function queryavan (informa){
+  var sqlcat = informa[0];
+  let numC = parseInt(sqlcat);
+  let string =  " ";
+  if(informa[3] > 2017)
+  {
+  	if((numC == 13) || (numC == 19) || (numC == 21) || (numC == 23) || (numC == 38) || (numC == 39) ||(numC == 116) || (numC == 117) ||(numC == 122) ){
+		string = 'Lo siento, no pude encontrar la información solicitado. Revisa bien los datos solicitados' + '¿En qué otra cosa te puedo ayudar?' ; 	
+  	}else{
+  		let select =  " ";
+  		var sqltri;
+  		var sqlanno;
+  		var sqlarea = informa[1];
+  		var sqlmt;
+  		var sqlat;
+  		let respuesta;
+  		var promedio;
+  		if(informa[3] == undefined  || informa[3] == null ){
+    			sqlanno = fecha.getFullYear();
+  		} else{
+    			sqlanno = informa[3];
+  		}
+  		if(informa[2] == undefined || informa[2] == null ){
+      			sqltri =quetrimestreN ( fecha.getMonth()+1);
+      			sqlmt = quetrimestreMes (fecha.getMonth()+1);
+ 		}else{
+      			sqltri = quetrimestreN (informa[2]);
+      			sqlmt = informa [2];
+  		}
+  		select = "select sum(at" + sqlmt +" ) as at , sum(mt" + sqlmt +") as mt , sum(mt12) as mt12 from datos1 where anno = '"+sqlanno+"' and categoria = '"+sqlcat+"' and area ilike '"+sqlarea+"' ;";
+  		console.log(select);
+		respuesta = await conectar.qryCompletoavan(select,sqlmt);
+  		promedio = prom(respuesta[0].mt12,respuesta[0].atN);
+  		select = "select categoria from catalogo_categorias where id = '"+numC+"'";
+  		let sqlnombre = await conectar.qryCompletonombre(select);
+  		string = sqlnombre + ' en el ' + sqlarea + ' realizo ' + respuesta[0].atN + ' de ' + respuesta[0].mtN + 'unidades, que se programaron en el ' + sqltri + ', con lo que alcanzo un ' +  promedio + ' de la meta programada en el año ' + informa[3] + '. Te gustaría saber, ¿Cómo es que iban en el año pasado?';
+  	}
+   }else{
+	string = 'Lo siento, no pude encontrar la información solicitada, los datos que tengo son a partir del 2018.' + '¿En qué otra cosa te puedo ayudar?' ;
+}
+  return string;
+}
+
 
 /* Funciones que se utilizaran para los Intent request */
+async function avan(informa){
+	let mensaje = await queryavan(informa);
+	const tempOutput = mensaje + pause;
+        const speechOutput = tempOutput;
+        const reprompt = 'En que otra cosa te puedo ayudar';
+        const cardText = 'Informando';
+        return await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
+
+}
 
 async function pal(informa){
         let mensaje = await querypalmas(informa);
@@ -244,6 +298,16 @@ async function si(pasado,informa){
       const reprompt = '¿En qué otra cosa te puedo ayudar?';
       const cardText = 'Comparacion';
       jsonObj = await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);			
+  }
+  if(pasado == 'avance'){
+      let mensaje = await queryavan(informa);
+        const tempOutput = mensaje + pause;
+        const speechOutput = tempOutput;
+        const reprompt = 'En que otra cosa te puedo ayudar';
+        const cardText = 'Informando';
+	informapasado = [informa[0],informa[1],informa[2],informa[3]-1];
+	pasadoIntent = 'avance';
+	return await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
   }
   return jsonObj;
 }
@@ -334,6 +398,24 @@ function formatearNumero (num)
     }
     return respuesta;
   }
+function quetrimestreMes (num)
+{
+   var respuesta;
+    if(num <= 3){
+       respuesta = 3;
+    }
+    if(num > 3 && num <= 6){
+        respuesta = 6;
+    }
+    if(num > 6 && num <= 9){
+        respuesta = 9;
+    }
+    if(num > 9 && num <=12){
+        respuesta = 12;
+    }
+    return respuesta;
+}
+
 
 function quetrimestre (num)
 {
@@ -356,16 +438,16 @@ function quetrimestre (num)
 function quetrimestreN (num)
 {
    var respuesta;
-    if(num == 3){
+    if(num <= 3){
        respuesta = 'primer trimestre';
     }
-    if(num == 6){
+    if(num > 3 && num <= 6){
         respuesta = 'segundo trimestre';
     }
-    if(num == 9){
+    if(num > 6 && num <= 9){
         respuesta = 'tercer trimestre';
     }
-    if(num == 12){
+    if(num > 9 && num <= 12){
         respuesta = 'cuarto trimestre';
     }
     return respuesta;

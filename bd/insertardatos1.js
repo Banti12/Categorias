@@ -1,6 +1,5 @@
 /*Banti Serna Brandon Aldair */
 
-/* El módulo del sistema de archivos Node.js le permite trabajar con el sistema */
 var fs = require('fs');
 
 /* Este cliente nos permitira realizar nuestra conexión y hacer las consultas a la base de datos y como siguiente paso vamos a realizar la configuración de nuestra conexión */
@@ -29,7 +28,6 @@ for (let j = 1; j < 217; j++){
     if(j>=100){
         categoria[j] = ''+j;
     }
-    console.log(categoria[j]);
 }
 
 for (i in annos)
