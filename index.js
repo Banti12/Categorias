@@ -1,3 +1,17 @@
+/**
+ *  * @author Banti Serna Brandon Aldair
+ *   * Programa realizado por Banti Serna Brandon Aldair
+ *     El programa se conecta con Alexa mandando información que se encuentra en la base de datos categorías.
+ *      */
+
+/**
+ * @param port puerto 443 pedido por Alexa
+ * @param fs
+ * @param path
+ * @param bodyParser
+ * @param Speech
+ * @param httpsOptions variable que obtiene el certificado y llave del servidor
+ */
 const express = require('express');
 const fs=require('fs');
 const path=require('path');
@@ -12,6 +26,14 @@ let annopasado = "";
 let informapasado = "";
 let informacion;
 let informacionpalmas;
+let repito;
+/**
+ * @param nombre variable que guarda el nombre de la skill
+ * @param mensaje variable que tiene un mensaje de bienvenida guardado
+ * @param pause variable el cual guarda una sentencia que ayuda a poner pause al la lectura de alexa
+ * @param saber_mas mensaje
+ * @param mensajeayuda  guarda mensaje
+ */
 const nombre = 'Categorias';
 const mensaje = 'Bienvenido a categorías';
 const pause = '<break time="0.3s" />';
@@ -52,30 +74,47 @@ app.post('/categorias' ,async function (req, res,next) {
 	if (req.body.request.type === 'LaunchRequest') {
     		res.json(bienvenida());
 		isFisrtTime = false;
-	}else if (req.body.request.type === 'IntentRequest') { 
+      } else if (req.body.request.type === 'SessionEndedRequest') { /* ... */ 
+      log("Session End");
+      req.body.session.new=true;
+      }else if (req.body.request.type === 'IntentRequest') { 
 		switch (req.body.request.intent.name) {
 			case 'AMAZON.HelpIntent':
 			pasadoIntent = req.body.request.intent.name;
-			res.json(ayuda());
+			repito = ayuda();
+			res.json(repito);
 			break;
-			case 'Si':
-			res.json(await si(pasadoIntent,informapasado));
+			case 'AMAZON.YesIntent':
+			repito = await si(pasadoIntent,informapasado);
+			res.json(repito);
 			break;
-			case 'No':
-                        res.json(no(pasadoIntent));
+			case 'AMAZON.NoIntent':
+			repito = no(pasadoIntent);
+                        res.json(repito);
                         break;
+			case 'AMAZON.RepeatIntent':
+			if(repito != undefined && repito != null){
+          			res.json(repito);
+        		}else{
+          			repito=defaul();
+          			res.json(repito);
+        		}
+			break;
 			case 'AMAZON.StopIntent' :
-			res.json(adios());
+			repito = adios();
+			res.json(repito);
 			break;
 			case 'informacion':
 			var informa = [req.body.request.intent.slots.area.value, req.body.request.intent.slots.programa.value, req.body.request.intent.slots.categoria.value, quetrimestre(req.body.request.intent.slots.trimestre.value), req.body.request.intent.slots.anno.value];
-			res.json(await info(informa));
+			repito = await info(informa);
+			res.json(repito);
 			pasadoIntent = req.body.request.intent.name;
 			informapasado = [req.body.request.intent.slots.area.value, req.body.request.intent.slots.programa.value, req.body.request.intent.slots.categoria.value, quetrimestre(req.body.request.intent.slots.trimestre.value), req.body.request.intent.slots.anno.value - 1];
 			break;
 			case 'palmas' :
 			var informa = [req.body.request.intent.slots.categorias_p.value," ", " " , req.body.request.intent.slots.anno_p.value];
-			res.json(await pal(informa));
+			repito = await pal(informa);
+			res.json(repito);
 			break;
 			case 'avance' :
 			let annoA;  
@@ -89,7 +128,12 @@ app.post('/categorias' ,async function (req, res,next) {
 			informapasado = [req.body.request.intent.slots.categorias_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), annoA - 1];
 			informacion = informa;
 			informacionpalmas = informa;
-			res.json(await avan(informa));
+			repito = await avan(informa)
+			res.json(repito);
+			break;
+			default:
+			repito = defaul();
+			res.json(repito);
 			break;
 		}
 	}   	
@@ -242,10 +286,18 @@ function adios() {
     return buildResponse(speechOutput, true, cardText);
   }
 
+function defaul() {
+    const tempOutput = 'Lo siento no entendí, no sé qué hacer le podrías preguntar a Alfonso que te ayude a preguntar lo que deseas, o revisa como se puede preguntar diciendo la palabra AYUDA. ¿En qué otra cosa te puedo ayudar?';
+    const speechOutput = tempOutput;
+    const cardText = 'System 32 no responde';
+    return buildResponse(speechOutput, false, cardText);
+  }
+
+
 async function si(pasado,informa){
   var jsonObj;
   if(pasado =='AMAZON.HelpIntent'){
-      const tempOutput = 'Existen muchas formas de preguntar, en esta ayuda te recomendare con tres formas con las cuales podrás obtener la información de manera clara y fácil. Para obtener el avance tendrás que preguntar, cómo va el avance en la categoría cero cero dos en el área CCH o cómo le fue al 002 en el CCH en el segundo trimestre del dos mil diecinueve. Para saber quién se lleva las palmas la manera más eficaz de preguntar es, quien se lleva las palmas en el cero cero dos en el año dos mil diecinueve.';
+      const tempOutput = 'Existen muchas formas de preguntar, en esta ayuda te recomendare con tres formas con las cuales podrás obtener la información de manera clara y fácil. Para obtener el avance tendrás que preguntar, cómo va el avance en la categoría cero cero dos en el área CCH o cómo le fue al 002 en el CCH en el segundo trimestre del dos mil diecinueve. Para saber quién se lleva las palmas' + susurroA + ' (quien trabajo más) ' + susurroC + ' la manera más eficaz de preguntar es, quien se lleva las palmas en el cero cero dos en el año dos mil diecinueve. ¿En qué te puedo ayudar?';
       const speechOutput = tempOutput;
       const reprompt = 'si quieres repetir';
       const cardText = 'Formas de preguntar';
