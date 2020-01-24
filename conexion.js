@@ -46,6 +46,43 @@ let resultado = [] ;
   return resultado;
 }
 
+async function qryCompletoPalmas(string){
+  let con = new Pool({
+      user: 'postgres',
+      host: '127.0.0.1',
+      database: 'categorias',
+      password: 'postgres',
+      port: 5432,
+  })
+
+let resultado = [] ;
+  await con.query(string, (err, res) => {
+        if (err) {
+      console.log(err.stack)
+  }else if(res != undefined || res != null || res.rowCount>0){
+      if(res.rowCount>=3){
+            for(i=0;i<3;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.area = res.rows[i].area;
+              resultado.push(json);
+            }
+          }else{
+            for(i=0;i<res.rowCount;i++){
+              var json={}
+              json.mt12 = res.rows[i].mt12;
+              json.area = res.rows[i].area;
+              resultado.push(json);
+            }
+        }
+  }else{
+      resultado=null;
+    }
+  })
+  await con.end();
+  return resultado;
+}
+
 async function qryCompletopalmas1(string){
   let con = new Pool({
       user: 'postgres',
@@ -229,7 +266,7 @@ let resultado = [] ;
 }
   
 exports.qryCompleto=qryCompleto;
-exports.qryCompletopalmas1 = qryCompletopalmas1;
+exports.qryCompletoPalmas = qryCompletoPalmas;
 exports.qryCompletopalmas2 = qryCompletopalmas2;
 exports.qryCompletopalmas3 = qryCompletopalmas3;
 exports.qryCompletoavan = qryCompletoavan;

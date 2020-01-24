@@ -10,6 +10,8 @@ var isFisrtTime = true;
 let nombreIntent = "" ;
 let annopasado = "";
 let informapasado = "";
+let informacion;
+let informacionpalmas;
 const nombre = 'Categorias';
 const mensaje = 'Bienvenido a categorías';
 const pause = '<break time="0.3s" />';
@@ -72,13 +74,21 @@ app.post('/categorias' ,async function (req, res,next) {
 			informapasado = [req.body.request.intent.slots.area.value, req.body.request.intent.slots.programa.value, req.body.request.intent.slots.categoria.value, quetrimestre(req.body.request.intent.slots.trimestre.value), req.body.request.intent.slots.anno.value - 1];
 			break;
 			case 'palmas' :
-			var informa = [req.body.request.intent.slots.anno_p.value, req.body.request.intent.slots.area_p.value, quetrimestre(req.body.request.intent.slots.programa_p.value), req.body.request.intent.slots.categorias_p.value];
+			var informa = [req.body.request.intent.slots.categorias_p.value," ", " " , req.body.request.intent.slots.anno_p.value];
 			res.json(await pal(informa));
 			break;
 			case 'avance' :
-			var informa = [req.body.request.intent.slots.categorias_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), req.body.request.intent.slots.anno_a.value];
+			let annoA;  
+			if( req.body.request.intent.slots.anno_a.value == undefined  || req.body.request.intent.slots.anno_a.value == null ){
+    				annoA = fecha.getFullYear();
+			  } else{
+    				annoA = req.body.request.intent.slots.anno_a.value;
+  			  }
+			var informa = [req.body.request.intent.slots.categorias_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), annoA];
 			pasadoIntent = req.body.request.intent.name;
-			informapasado = [req.body.request.intent.slots.categorias_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), req.body.request.intent.slots.anno_a.value - 1];
+			informapasado = [req.body.request.intent.slots.categorias_a.value, req.body.request.intent.slots.area_a.value, quetrimestre(req.body.request.intent.slots.trimestre_a.value), annoA - 1];
+			informacion = informa;
+			informacionpalmas = informa;
 			res.json(await avan(informa));
 			break;
 		}
@@ -107,74 +117,29 @@ async function queryprincipal (informa){
 }
 
 async function querypalmas (informa){
-  let string =  " ";
-  let select =  " ";
-  let tipo = " ";
-  string = 'Lo siento, no pude encontrar la información solicitado. Revisa bien los datos solicitados' + hablaEnrique +  ' Si persiste el problema por favor de ponerse en contacto con Alfonso ' + cerrarEnrique + '¿En qué otra cosa te puedo ayudar?' ;
+  let sqlcat = informa[0].replace(/ /g,'');
+  let numC = parseInt(sqlcat);
+  let string = 'Lo siento, no pude encontrar la información solicitado. Revisa bien los datos solicitados' + susurroA +  ' Si persiste el problema por favor de ponerse en contacto con Alfonso ' + susurroC + '¿En qué otra cosa te puedo ayudar?' ;
   var sqlanno;
-  var sqlarea;
-  var sqlprog;
-  var sqlcat;
-  let respuesta;
-  var indicador = 1;
-  if(informa[0] == undefined  || informa[0] == null ){
+  if(informa[3] == undefined  || informa[3] == null ){
     sqlanno = fecha.getFullYear();
   } else{
-    sqlanno = informa[0];
+    sqlanno = informa[3];
   }
-
-  if(informa[1] != undefined  || informa[1] != null ){
-    select = "select DISTINCT(mt12),p_nombre,unidad,programa,numero FROM datos where anno = '"+sqlanno+"' and siglas ilike '"+informa[1]+"' ORDER BY mt12 DESC;";
-    console.log("Base de datos"+ select);
-    respuesta = await conectar.qryCompletopalmas1(select);
-    tipo = 'El área que se lleva el';
-    indicador = 1;
-  }
-
-  if(informa[2] != undefined  || informa[2] != null ){
-    select = "select DISTINCT(mt12),p_nombre,unidad,siglas,numero FROM datos where anno = '"+sqlanno+"' and programa ilike '"+informa[2]+"' ORDER BY mt12 DESC;";
-    console.log(select)
-    respuesta = await conectar.qryCompletopalmas2(select);
-    tipo = 'El programa que se lleva el';
-    indicador = 2;
-  }
-
-  if(informa[3] != undefined  || informa[3] != null ){
-    select = "select DISTINCT(mt12),p_nombre,unidad,siglas,programa FROM datos where anno = '"+sqlanno+"' and numero ilike '"+informa[3]+"' ORDER BY mt12 DESC;";
-    console.log(select)
-    respuesta = await conectar.qryCompletopalmas3(select);
-    tipo = 'La categoría que se lleva el';
-    indicador = 3;
-  }
-
+  let select =  " select DISTINCT(area) AS area , sum(mt12) AS mt12 from datos1 where anno = '"+sqlanno+"' and categoria = '"+sqlcat+"' group by area order by mt12 desc";
+  let respuesta = await conectar.qryCompletoPalmas(select);
+  select = "select categoria from catalogo_categorias where id = '"+numC+"'";
+  let sqlnombre = await conectar.qryCompletonombre(select); 
   if(respuesta != null){
             switch (respuesta.length){
               case 3:
-		if( indicador == 1){
-			string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el programa ' + respuesta[0].programa + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el programa ' + respuesta[1].programa + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' . ' + tipo + ' tercer lugar es ' +  respuesta[2].p_nombre + ' con el programa ' + respuesta[2].programa + ' y categoría  ' + respuesta[2].categoria   + ' que realizo ' + respuesta[2].mt12 + ' ' + respuesta[2].unidad + ' en el año ' + sqlanno;
-		}else if (indicador == 2){
-			string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' . ' + tipo + ' tercer lugar es ' +  respuesta[2].p_nombre + ' con el área ' + respuesta[2].siglas + ' y categoría  ' + respuesta[2].categoria   + ' que realizo ' + respuesta[2].mt12 + ' ' + respuesta[2].unidad + ' en el año ' + sqlanno;
-		}else{
-                string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y programa  ' + respuesta[0].programa   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y programa ' + respuesta[1].programa   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' . ' + tipo + ' tercer lugar es ' +  respuesta[2].p_nombre + ' con el área ' + respuesta[2].siglas + ' y programas  ' + respuesta[2].programa   + ' que realizo ' + respuesta[2].mt12 + ' ' + respuesta[2].unidad + ' en el año ' + sqlanno;
-              	}
+		string = 'En ' + sqlnombre + ', el primer lugar es para el área ' +  respuesta[0].area + ' que realizo ' + respuesta[0].mt12  + ' unidades. '+ pause  + 'El segundo lugar es para el área ' +  respuesta[1].area + ' que realizo ' + respuesta[1].mt12 + ' unidades. ' + 'El tercer lugar es para el área ' +  respuesta[2].area + ' que realizo ' + respuesta[2].mt12 + ' unidades, que se programarón en el ' + sqlanno;
 		break;
               case 2:
-                if( indicador == 1){
-        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el programa ' + respuesta[0].programa + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el programa ' + respuesta[1].programa + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad + ' en el año ' + sqlanno;
-}else if (indicador == 2){
-        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y categoría ' + respuesta[1].categoria   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad  + ' en el año ' + sqlanno;
-}else{
-        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y programa  ' + respuesta[0].programa   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + tipo + ' segundo lugar es ' +  respuesta[1].p_nombre + ' con el área ' + respuesta[1].siglas + ' y programa ' + respuesta[1].programa   + ' que realizo ' + respuesta[1].mt12 + ' ' + respuesta[1].unidad + ' en el año ' + sqlanno;
-		}
+		string = 'En ' + sqlnombre + ', el primer lugar es para el área ' +  respuesta[0].area + ' que realizo ' + respuesta[0].mt12  + ' unidades. '+ pause  + 'El segundo lugar es para el área ' +  respuesta[1].area + ' que realizo ' + respuesta[1].mt12 + ' unidades, que se programarón en el ' + sqlanno;
               break;
               case 1:
-                if( indicador == 1){
-        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el programa ' + respuesta[0].programa + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause + ' en el año ' + sqlanno;
-}else if (indicador == 2){
-        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y categoría  ' + respuesta[0].categoria   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + ' en el año ' + sqlanno;
-}else{
-        		string = tipo + ' primer lugar es ' +  respuesta[0].p_nombre + ' con el área ' + respuesta[0].siglas + ' y programa  ' + respuesta[0].programa   + ' que realizo ' + respuesta[0].mt12  +' ' +  respuesta[0].unidad + '. '+ pause  + ' en el año ' + sqlanno;
-		}
+		string = 'En ' + sqlnombre + ', el primer lugar es para el área ' +  respuesta[0].area + ' que realizo ' + respuesta[0].mt12  + ' unidades, que se programarón en el ' + sqlanno;
               break;
             }
     } else {
@@ -184,27 +149,23 @@ async function querypalmas (informa){
 }
 
 async function queryavan (informa){
-  var sqlcat = informa[0];
+  var sqlcat = informa[0].replace(/ /g,'');
+  var sqlarea = informa[1].replace(/ /g,'.');
+  sqlarea = sqlarea.replace(/ /g,'');
+  let sqlanno = informa[3];
   let numC = parseInt(sqlcat);
   let string =  " ";
-  if(informa[3] > 2017)
+  if(sqlanno > 2017)
   {
   	if((numC == 13) || (numC == 19) || (numC == 21) || (numC == 23) || (numC == 38) || (numC == 39) ||(numC == 116) || (numC == 117) ||(numC == 122) ){
-		string = 'Lo siento, no pude encontrar la información solicitado. Revisa bien los datos solicitados' + '¿En qué otra cosa te puedo ayudar?' ; 	
-  	}else{
+		string = 'Lo siento, no pude encontrar la información solicitado. Revisa bien los datos solicitados' + '¿En qué otra cosa te puedo ayudar?' ;  
+	}else{
   		let select =  " ";
   		var sqltri;
-  		var sqlanno;
-  		var sqlarea = informa[1];
   		var sqlmt;
   		var sqlat;
   		let respuesta;
   		var promedio;
-  		if(informa[3] == undefined  || informa[3] == null ){
-    			sqlanno = fecha.getFullYear();
-  		} else{
-    			sqlanno = informa[3];
-  		}
   		if(informa[2] == undefined || informa[2] == null ){
       			sqltri =quetrimestreN ( fecha.getMonth()+1);
       			sqlmt = quetrimestreMes (fecha.getMonth()+1);
@@ -213,12 +174,11 @@ async function queryavan (informa){
       			sqlmt = informa [2];
   		}
   		select = "select sum(at" + sqlmt +" ) as at , sum(mt" + sqlmt +") as mt , sum(mt12) as mt12 from datos1 where anno = '"+sqlanno+"' and categoria = '"+sqlcat+"' and area ilike '"+sqlarea+"' ;";
-  		console.log(select);
 		respuesta = await conectar.qryCompletoavan(select,sqlmt);
   		promedio = prom(respuesta[0].mt12,respuesta[0].atN);
   		select = "select categoria from catalogo_categorias where id = '"+numC+"'";
   		let sqlnombre = await conectar.qryCompletonombre(select);
-  		string = sqlnombre + ' en el ' + sqlarea + ' realizo ' + respuesta[0].atN + ' de ' + respuesta[0].mtN + 'unidades, que se programaron en el ' + sqltri + ', con lo que alcanzo un ' +  promedio + ' de la meta programada en el año ' + informa[3] + '. Te gustaría saber, ¿Cómo es que iban en el año pasado?';
+  		string = sqlnombre + ' en el ' + sqlarea + ' realizo ' + respuesta[0].atN + ' de ' + respuesta[0].mtN + ' unidades, que se programaron en el ' + sqltri + ', con lo que alcanzo un ' +  promedio + ' de la meta programada en el año ' + sqlanno + '. Te gustaría saber, ¿Cómo es que iban en el año pasado?';
   	}
    }else{
 	string = 'Lo siento, no pude encontrar la información solicitada, los datos que tengo son a partir del 2018.' + '¿En qué otra cosa te puedo ayudar?' ;
@@ -285,7 +245,7 @@ function adios() {
 async function si(pasado,informa){
   var jsonObj;
   if(pasado =='AMAZON.HelpIntent'){
-      const tempOutput = 'Existen 3 formas de preguntar' + pause + 'La primera consiste en decir categorias' + pause + ', ¿En que te puedo ayudar?' + pause;
+      const tempOutput = 'Existen muchas formas de preguntar, en esta ayuda te recomendare con tres formas con las cuales podrás obtener la información de manera clara y fácil. Para obtener el avance tendrás que preguntar, cómo va el avance en la categoría cero cero dos en el área CCH o cómo le fue al 002 en el CCH en el segundo trimestre del dos mil diecinueve. Para saber quién se lleva las palmas la manera más eficaz de preguntar es, quien se lleva las palmas en el cero cero dos en el año dos mil diecinueve.';
       const speechOutput = tempOutput;
       const reprompt = 'si quieres repetir';
       const cardText = 'Formas de preguntar';
@@ -301,13 +261,21 @@ async function si(pasado,informa){
   }
   if(pasado == 'avance'){
       let mensaje = await queryavan(informa);
-        const tempOutput = mensaje + pause;
+	const tempOutput = mensaje + pause;
         const speechOutput = tempOutput;
         const reprompt = 'En que otra cosa te puedo ayudar';
         const cardText = 'Informando';
 	informapasado = [informa[0],informa[1],informa[2],informa[3]-1];
 	pasadoIntent = 'avance';
 	return await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
+  }
+  if(pasado == 'palmas'){
+	let mensaje = await querypalmas(informacionpalmas);
+        const tempOutput = mensaje + pause + ', ¿En que te puedo ayudar?';
+        const speechOutput = tempOutput;
+        const reprompt = 'En que otra cosa te puedo ayudar';
+        const cardText = 'Informando';
+        return await buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
   }
   return jsonObj;
 }
@@ -327,6 +295,22 @@ function no(pasado){
       const reprompt = '¿En qué otra cosa te puedo ayudar?';
       const cardText = 'Comparacion';
       jsonObj = buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
+  }
+  if(pasado == 'avance'){
+        pasadoIntent = 'palmas';
+	const tempOutput = 'Te gustaría saber, ¿quién se lleva las palmas en la categoria ' + informacion[0] + ' del ' + informacion[3] + '?' + pause;
+        const speechOutput = tempOutput;
+        const reprompt = 'En que otra cosa te puedo ayudar';
+        const cardText = 'Informando';
+        return buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
+  }
+  if(pasado == 'palmas'){
+        const tempOutput = 'Está bien será en otra ocasión, ¿En qué otra cosa te puedo ayudar?';
+        const speechOutput = tempOutput;
+        const reprompt = 'En que otra cosa te puedo ayudar';
+        const cardText = 'Informando';
+        pasadoIntent = 'palmas';
+        return buildResponseWithRepromt(speechOutput, false, cardText, reprompt);
   }
 
   return jsonObj;
