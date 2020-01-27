@@ -1,0 +1,536 @@
+
+nModel": {
+        "languageModel": {
+            "invocationName": "información categorías",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "necesito ayuda",
+                        "Cómo se utiliza",
+                        "Qué puedo preguntar",
+                        "Cómo funciona",
+                        "me podrías ayudar",
+                        "ayuda"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": [
+                        "es todo gracias",
+                        "adiós alexa",
+                        "Adios",
+                        "hasta pronto",
+                        "Es todo",
+                        "Nos vemos",
+                        "Stop",
+                        "Adiós"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "informacion",
+                    "slots": [
+                        {
+                            "name": "categoria",
+                            "type": "AMAZON.Movie",
+                            "samples": [
+                                "{categoria}",
+                                "es {categoria}"
+                            ]
+                        },
+                        {
+                            "name": "area",
+                            "type": "AMAZON.Movie",
+                            "samples": [
+                                "{area}",
+                                "el {area}",
+                                "la {area}"
+                            ]
+                        },
+                        {
+                            "name": "programa",
+                            "type": "AMAZON.Movie",
+                            "samples": [
+                                "{programa}",
+                                "en el {programa}",
+                                "el {programa}"
+                            ]
+                        },
+                        {
+                            "name": "trimestre",
+                            "type": "AMAZON.Ordinal",
+                            "samples": [
+                                "en el {trimestre}",
+                                "{trimestre}",
+                                "el trimestre es {trimestre}"
+                            ]
+                        },
+                        {
+                            "name": "anno",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "en el {anno}",
+                                "{anno}",
+                                "el año es {anno}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "como va el avance en la meta",
+                        "Cómo va el avance en la meta"
+                    ]
+                },
+                {
+                    "name": "palmas",
+                    "slots": [
+                        {
+                            "name": "anno_p",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER"
+                        },
+                        {
+                            "name": "categorias_p",
+                            "type": "AMAZON.Movie"
+                        }
+                    ],
+                    "samples": [
+                        "quién se lleva las palmas en el {categorias_p} del {anno_p}",
+                        "quien se lleva las palmas en el {categorias_p} del {anno_p}",
+                        "quién se lleva las palmas en el {categorias_p}",
+                        "quien se lleva las palmas en el {categorias_p}",
+                        "quién se lleva las palmas en el {categorias_p} en el año {anno_p}",
+                        "quien se lleva las palmas en el {categorias_p} en el año {anno_p}",
+                        "Quién se lleva las palmas en la categoría {categorias_p} en el año {anno_p}",
+                        "Quien se lleva las palmas en la categoría {categorias_p} en el año {anno_p}"
+                    ]
+                },
+                {
+                    "name": "avance",
+                    "slots": [
+                        {
+                            "name": "area_a",
+                            "type": "AMAZON.Movie",
+                            "samples": [
+                                "en el {area_a}",
+                                "en el área {area_a}",
+                                "Busco el área {area_a}",
+                                "el área es {area_a}",
+                                "{area_a}",
+                                "el {area_a}"
+                            ]
+                        },
+                        {
+                            "name": "anno_a",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER"
+                        },
+                        {
+                            "name": "categorias_a",
+                            "type": "AMAZON.Movie",
+                            "samples": [
+                                "en el {categorias_a}",
+                                "en la {categorias_a}",
+                                "{categorias_a}",
+                                "la categoría es {categorias_a}"
+                            ]
+                        },
+                        {
+                            "name": "trimestre_a",
+                            "type": "AMAZON.Ordinal"
+                        }
+                    ],
+                    "samples": [
+                        "cómo fue el avance del {categorias_a} en el {area_a} en el {trimestre_a} del {anno_a}",
+                        "cómo fue el avance del {categorias_a} en el área {area_a} en el {trimestre_a} del año {anno_a}",
+                        "cómo fue el avance de la categoria {categorias_a} en el área {area_a} en el {trimestre_a} del año {anno_a}",
+                        "como fue el avance de la categoria {categorias_a} en el área {area_a} en el {trimestre_a} del año {anno_a}",
+                        "cómo va el {categorias_a} en el área {area_a} en el {trimestre_a} trimestre",
+                        "como va el {categorias_a} en el área {area_a} en el {trimestre_a} trimestre",
+                        "cómo va el {categorias_a} en el área {area_a}",
+                        "como va el {categorias_a} en el área {area_a}",
+                        "Cómo le fue al {categorias_a} en el {area_a} en el {trimestre_a} trimestre del {anno_a}",
+                        "Cómo le fue al {categorias_a} en el área {area_a} en el {trimestre_a} del {anno_a}",
+                        "Cómo es el avance de la {categorias_a} en el área {area_a} en el {trimestre_a} del {anno_a}",
+                        "Cómo fue el avance de la categoria {categorias_a} en el área {area_a} en el {trimestre_a} del {anno_a}",
+                        "Cómo va el avance de la categoría {categorias_a} en el área {area_a}",
+                        "Cómo va el avance en el {categorias_a} del {area_a} "
+                    ]
+                },
+                {
+                    "name": "AMAZON.RepeatIntent",
+                    "samples": [
+                        "otra vez pero más lento",
+                        "otra vez",
+                        "no escuche",
+                        "que dijiste",
+                        "que",
+                        "me podrías repetir",
+                        "puedes repetirlo",
+                        "me lo podrías repetir",
+                        "repetirme",
+                        "repitemelo",
+                        "repite",
+                        "repit",
+                        "me lo podrías repetir por favor",
+                        "me lo repites",
+                        "me repites ",
+                        "repetir",
+                        "me podrías repetir lo que dijiste"
+                    ]
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": [
+                        "si por favor",
+                        "yes",
+                        "claro",
+                        "por favor",
+                        "si",
+                        "claro que sí"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": [
+                        "no se",
+                        "en otro momento",
+                        "no gracias",
+                        "ahora no",
+                        "nel",
+                        "no"
+                    ]
+                }
+            ],
+            "types": []
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "informacion",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "categoria",
+                            "type": "AMAZON.Movie",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.772933897401.1277499754935"
+                            }
+                        },
+                        {
+                            "name": "area",
+                            "type": "AMAZON.Movie",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.772933897401.869005592260"
+                            }
+                        },
+                        {
+                            "name": "programa",
+                            "type": "AMAZON.Movie",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.772933897401.403165272643"
+                            }
+                        },
+                        {
+                            "name": "trimestre",
+                            "type": "AMAZON.Ordinal",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.772933897401.1158559287879"
+                            }
+                        },
+                        {
+                            "name": "anno",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.461255279251.116870343529"
+                            },
+                            "validations": [
+                                {
+                                    "type": "isLessThan",
+                                    "prompt": "Slot.Validation.1234614454586.348999684326.544275022722",
+                                    "value": "2030"
+                                },
+                                {
+                                    "type": "isGreaterThan",
+                                    "prompt": "Slot.Validation.1234614454586.348999684326.16645156542",
+                                    "value": "2017"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "palmas",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "anno_p",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {},
+                            "validations": [
+                                {
+                                    "type": "isGreaterThan",
+                                    "prompt": "Slot.Validation.631530711044.823362662596.1218539111211",
+                                    "value": "2017"
+                                },
+                                {
+                                    "type": "isLessThan",
+                                    "prompt": "Slot.Validation.631530711044.823362662596.35054900608",
+                                    "value": "2030"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "categorias_p",
+                            "type": "AMAZON.Movie",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        }
+                    ]
+                },
+                {
+                    "name": "avance",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "area_a",
+                            "type": "AMAZON.Movie",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.703200123449.594506568341"
+                            }
+                        },
+                        {
+                            "name": "anno_a",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        },
+                        {
+                            "name": "categorias_a",
+                            "type": "AMAZON.Movie",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.703200123449.1495646389442"
+                            }
+                        },
+                        {
+                            "name": "trimestre_a",
+                            "type": "AMAZON.Ordinal",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        }
+                    ]
+                }
+            ],
+            "delegationStrategy": "ALWAYS"
+        },
+        "prompts": [
+            {
+                "id": "Elicit.Slot.1018832908102.532643505486",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no escuche, me podrías repetir que sigla es la que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.493356715806.622433489701",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no escuche, me podrías repetir que programa es la que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.493356715806.1130114711019",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no escuche, me podrías repetir que numero de programa es el que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.493356715806.744244938392",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no escuche, me podrías repetir que trimestre buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.493356715806.473386239604",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no escuche, me podrías repetir el año que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Slot.Validation.493356715806.473386239604.1471381380321",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento mis registros son a partir del dos mil dieciocho"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.1568417794891.364699692584",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Me puedes repetir las siglas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.772933897401.869005592260",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Me puedes proporcionar el área"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.772933897401.403165272643",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Me puedes proporcionar el programa"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.772933897401.1277499754935",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Me puedes proporcionar el número de la meta que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.772933897401.1158559287879",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Me puedes proporcionar el trimestre que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.461255279251.116870343529",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Me puedes proporcionar el año que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Slot.Validation.1234614454586.348999684326.544275022722",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento, No tengo datos del futuro."
+                    }
+                ]
+            },
+            {
+                "id": "Slot.Validation.1234614454586.348999684326.16645156542",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento, tengo datos apartir del dos mil dieciocho."
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.631530711044.1256531547983",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no escuche, me podrías repetir el área que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.631530711044.823362662596",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no escuche, me podrías repetir el año que buscas"
+                    }
+                ]
+            },
+            {
+                "id": "Slot.Validation.631530711044.823362662596.1218539111211",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento, tengo datos apartir del dos mil dieciocho."
+                    }
+                ]
+            },
+            {
+                "id": "Slot.Validation.631530711044.823362662596.35054900608",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento, No tengo datos del futuro."
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.703200123449.594506568341",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no entendí me puedes repetir en que área, por favor"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.703200123449.1495646389442",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Lo siento no entendí me puedes repetir en que categoría, por favor"
+                    }
+                ]
+            }
+        ]
+    }
+}
